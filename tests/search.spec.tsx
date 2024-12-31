@@ -1,13 +1,13 @@
 import { test } from '@playwright/test';
 // import fs from 'fs';
 
-test('Search "커피" and extract results', async ({ page }) => {
+test('Search "귤" and extract results', async ({ page }) => {
   // 웹사이트 열기
   await page.goto('https://thirtymall.com/');
 
   // 검색창에 "커피" 입력
   const searchInput = await page.getByPlaceholder('검색어를 입력해 주세요');
-  await searchInput.fill('커피');
+  await searchInput.fill('귤');
   await searchInput.press('Enter');
   
 
