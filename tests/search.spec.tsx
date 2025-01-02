@@ -1,30 +1,33 @@
-import { test } from '@playwright/test';
-// import fs from 'fs';
+import { test, expect } from '@playwright/test';
 
-test('Search "귤" and extract results', async ({ page }) => {
-  // 웹사이트 열기
-  await page.goto('https://thirtymall.com/');
+// 테스트 케이스 정의
+const TEST_CASES = [
+    { no: "1", search: "사과" },
+    { no: "2", search: "포도" },
+    { no: "3", search: "과자" },
+    { no: "4", search: "딸기" },
+    { no: "5", search: "망고" },
+];
 
-  // 검색창에 "커피" 입력
-  const searchInput = await page.getByPlaceholder('검색어를 입력해 주세요');
-  await searchInput.fill('귤');
-  await searchInput.press('Enter');
-  
+test.describe('Search Functionality', () => {
+    TEST_CASES.forEach(testCase => {
+        test(`Test Case ${testCase.no}: Searching for '${testCase.search}'`, async ({ page }) => {
+            await page.goto('https://thirtymall.com/');
+            await page.fill("input[placeholder='검색어를 입력해 주세요']", testCase.search);
+            await page.press("input[placeholder='검색어를 입력해 주세요']", 'Enter');
+            await page.waitForSelector('text=검색결과', { timeout: 5000 });
 
-  // 검색 결과 대기
-  const itemsSelector = page.locator('div.mui-1kg578k'); // 특정 검색 결과의 셀렉터
+            // 2초 대기
+            await page.waitForTimeout(2000);
 
-  // 결과 항목 추출
-  const results = await itemsSelector.evaluateAll((items) =>
-    items.map((item, index) => ({
-      no: index + 1,
-      text: item.textContent?.trim() || '텍스트 없음',
-    }))
-  );
+            const items = await page.locator('div.mui-1kg578k p.mui-l1goj5').allTextContents();
 
-  // 추출한 데이터 확인
-  console.log(results);
+            console.log(`Test Case ${testCase.no} Results:`);
+            items.forEach((item, index) => {
+                console.log(`${index + 1}: ${item.trim()}`);
+            });
 
-//   // 결과를 텍스트 파일에 저장
-//   fs.writeFileSync('search-results.txt', JSON.stringify(results, null, 2), 'utf-8');
+            expect(items.length).toBeGreaterThan(0);
+        });
+    });
 });
